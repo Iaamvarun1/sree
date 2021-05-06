@@ -11,7 +11,8 @@ pipeline {
         }
         stage('DockerHub Push'){
             steps{
-                withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
+                   withCredentials([string(credentialsId: 'dockerHubPwd', variable: '')]) {
+    
                     sh "docker login -u thotasreenu9 -p ${dockerHubPwd}"
                     sh "docker push thotasreenu9/nodeapp:${DOCKER_TAG}"
                 }
@@ -25,14 +26,14 @@ pipeline {
 				      sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.ymlec2-user@172.31.0.153:/home/ec2-user/"
             
 				
-			       script{
-			          try{
-				        sh "ssh ec2-user@172.31.0.153 kubectl apply -f ."
+			     script{
+			     try{
+				  sh "ssh ec2-user@172.31.0.153 kubectl apply -f ."
 				 }catch(error){
-				         sh "ssh ec2-user@172.31.0.153 kubectl create -f ."
+				  sh "ssh ec2-user@172.31.0.153 kubectl create -f ."
 				      }
 			        }
-			}
+				}
             }
         }
     }
