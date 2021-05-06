@@ -12,25 +12,27 @@ pipeline {
         stage('DockerHub Push'){
             steps{
                 withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-                    sh "docker login -u kammana -p ${dockerHubPwd}"
-                    sh "docker push kammana/nodeapp:${DOCKER_TAG}"
+                    sh "docker login -u thotasreenu9 -p ${dockerHubPwd}"
+                    sh "docker push thotasreenu9/nodeapp:${DOCKER_TAG}"
                 }
             }
         }
         stage('Deploy to k8s'){
             steps{
-                sh "chmod +x changeTag.sh"
-                sh "./changeTag.sh ${DOCKER_TAG}"
-                sshagent(['kops-machine']) {
-                    sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.yml ec2-user@52.66.70.61:/home/ec2-user/"
-                    script{
-                        try{
-                            sh "ssh ec2-user@52.66.70.61 kubectl apply -f ."
-                        }catch(error){
-                            sh "ssh ec2-user@52.66.70.61 kubectl create -f ."
-                        }
-                    }
-                }
+                sh "chmod +X changeTag.sh"
+				sh "./changeTag.sh ${DOCKER_TAG}"
+				sshagent(['k8s-master']) {
+				      sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.ymlec2-user@172.31.0.153:/home/ec2-user/"
+                  }
+				
+			     scripts{
+			     try{
+				  sh "ssh ec2-user@172.31.0.153 kubectl apply -f ."
+				 }catch(error){
+				  sh "ssh ec2-user@172.31.0.153 kubectl create -f ."
+				      }
+			        }
+				}
             }
         }
     }
@@ -39,4 +41,3 @@ pipeline {
 def getDockerTag(){
     def tag  = sh script: 'git rev-parse HEAD', returnStdout: true
     return tag
-}
