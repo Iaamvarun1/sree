@@ -25,7 +25,7 @@ pipeline {
 				      sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.ymlec2-user@172.31.0.153:/home/ec2-user/"
             
 				
-			       scripts{
+			       script{
 			          try{
 				        sh "ssh ec2-user@172.31.0.153 kubectl apply -f ."
 				 }catch(error){
