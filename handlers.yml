@@ -1,0 +1,33 @@
+---
+- hosts: 172.31.41.130
+  become: True
+  gather_facts: yes
+  tasks:
+    - name: install packages
+      yum:
+        name: httpd
+        state: present
+    - name: install git
+      yum: 
+        name: git
+        state: present
+    - name: Install static code from git
+      git:
+        repo: https://github.com/iaamvarun/javahomeapp
+        dest: /var/www/html
+      notify:
+        - Restart apache
+    - name: start and enable apache
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+  handlers:
+     - name: Restart apache
+       service:
+         name: httpd
+         state: restarted        
+          
+
+... 
+
